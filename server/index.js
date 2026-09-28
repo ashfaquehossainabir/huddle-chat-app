@@ -6,12 +6,16 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const { Schema, model, Types } = mongoose;
-const User = model('User', new Schema({
+const userSchema = new Schema({
   name: { type: String, required: true, trim: true },
   username: { type: String, required: true, unique: true, lowercase: true, trim: true, match: /^[a-z0-9_]{3,20}$/ },
+  email: { type: String, lowercase: true, trim: true, match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Enter a valid email address'] },
   password: { type: String, required: true },
   lastActive: { type: Date, default: Date.now },
-}, { timestamps: true }));
+}, { timestamps: true });
+// Unique only when an email exists, so accounts created before emails were added don't clash on null.
+userSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: 'string' } } });
+const User = model('User', userSchema);
 const Group = model('Group', new Schema({
   name: { type: String, required: true, trim: true },
   owner: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -43,12 +47,14 @@ const wrap = fn => (req, res) => fn(req, res).catch(e => {
   if (e.code === 11000) {
     const field = Object.keys(e.keyPattern || e.keyValue || {})[0];
     console.error('Duplicate key error:', e.keyPattern || e.message);
-    return res.status(409).json({ error: field === 'username' ? 'Username is already taken' : `Could not save: duplicate value for "${field || 'unknown'}" (check for a stale database index)` });
+    return res.status(409).json({ error: field === 'username' ? 'Username is already taken' : field === 'email' ? 'Email is already registered' : `Could not save: duplicate value for "${field || 'unknown'}" (check for a stale database index)` });
   }
   res.status(400).json({ error: e.message });
 });
 const sign = u => jwt.sign({ id: u._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 const pub = u => ({ id: u._id, name: u.name, username: u.username, lastActive: u.lastActive });
+const self = u => ({ ...pub(u), email: u.email || '' }); // email is only ever returned to its owner
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const auth = async (req, res, next) => {
   try {
@@ -63,20 +69,46 @@ const auth = async (req, res, next) => {
 
 app.post('/api/auth/signup', wrap(async (req, res) => {
   const { name, username, password } = req.body;
+  const email = (req.body.email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) throw new Error('Enter a valid email address');
   if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(username || '')) throw new Error('Username: 3-20 letters, numbers or underscores');
   if (await User.exists({ username: username.toLowerCase() })) throw new Error('Username is already taken');
-  const user = await User.create({ name, username, password: await bcrypt.hash(password, 10) });
-  res.json({ token: sign(user), user: pub(user) });
+  if (await User.exists({ email })) throw new Error('Email is already registered');
+  const user = await User.create({ name, username, email, password: await bcrypt.hash(password, 10) });
+  res.json({ token: sign(user), user: self(user) });
 }));
 
 app.post('/api/auth/login', wrap(async (req, res) => {
   const user = await User.findOne({ username: (req.body.username || '').toLowerCase() });
   if (!user || !(await bcrypt.compare(req.body.password || '', user.password))) throw new Error('Wrong username or password');
-  res.json({ token: sign(user), user: pub(user) });
+  res.json({ token: sign(user), user: self(user) });
 }));
 
-app.get('/api/me', auth, (req, res) => res.json(pub(req.user)));
+app.get('/api/me', auth, (req, res) => res.json(self(req.user)));
+
+// Account settings: update name / email
+app.patch('/api/me', auth, wrap(async (req, res) => {
+  const name = (req.body.name || '').trim();
+  const email = (req.body.email || '').trim().toLowerCase();
+  if (!name) throw new Error('Name is required');
+  if (!EMAIL_RE.test(email)) throw new Error('Enter a valid email address');
+  if (email !== req.user.email && await User.exists({ email, _id: { $ne: req.user._id } })) throw new Error('Email is already registered');
+  req.user.name = name;
+  req.user.email = email;
+  await req.user.save();
+  res.json(self(req.user));
+}));
+
+// Account settings: change password (requires the current one)
+app.put('/api/me/password', auth, wrap(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!(await bcrypt.compare(currentPassword || '', req.user.password))) throw new Error('Current password is incorrect');
+  if (!newPassword || newPassword.length < 6) throw new Error('New password must be at least 6 characters');
+  req.user.password = await bcrypt.hash(newPassword, 10);
+  await req.user.save();
+  res.json({ ok: true });
+}));
 
 app.get('/api/users/search', auth, wrap(async (req, res) => {
   const q = (req.query.q || '').toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -198,6 +230,8 @@ app.delete('/api/groups/:id/members/:username', auth, wrap(async (req, res) => {
 }));
 
 await mongoose.connect(process.env.MONGO_URI);
+// Drop indexes left over from older schema versions (e.g. a unique "email_1" index) and build the current ones.
+try { await User.syncIndexes(); } catch (e) { console.error('User index sync failed:', e.message); }
 app.use((e, req, res, next) => res.status(403).json({ error: e.message }));
 const port = process.env.PORT || 5000;
 app.listen(port, '0.0.0.0', () => console.log('API on', port));

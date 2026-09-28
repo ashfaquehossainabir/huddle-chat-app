@@ -23,9 +23,20 @@ const activeText = d => {
   return `Active ${days} day${days > 1 ? 's' : ''} ago`;
 };
 
-function AuthScreen({ onAuth }) {
+const initialTheme = () => localStorage.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+function ThemeToggle({ theme, onToggle, className = '' }) {
+  const dark = theme === 'dark';
+  return (
+    <button type="button" className={'ghost icon-btn ' + className} onClick={onToggle} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Light mode' : 'Dark mode'}>
+      {dark ? '☀' : '☾'}
+    </button>
+  );
+}
+
+function AuthScreen({ onAuth, theme, onToggleTheme }) {
   const [mode, setMode] = useState('login');
-  const [f, setF] = useState({ name: '', username: '', password: '' });
+  const [f, setF] = useState({ name: '', username: '', email: '', password: '' });
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const set = k => e => setF({ ...f, [k]: e.target.value });
@@ -38,11 +49,13 @@ function AuthScreen({ onAuth }) {
   };
   return (
     <div className="auth">
+      <ThemeToggle theme={theme} onToggle={onToggleTheme} className="auth-theme" />
       <form onSubmit={submit} className="auth-card">
         <h1>Huddle</h1>
         <p>{mode === 'login' ? 'Log in to pick up your conversations.' : 'Create an account and choose a username friends can search for.'}</p>
         {mode === 'signup' && <input placeholder="Full name" value={f.name} onChange={set('name')} required />}
         <input placeholder="Username" value={f.username} onChange={set('username')} autoCapitalize="none" required />
+        {mode === 'signup' && <input type="email" placeholder="Email" value={f.email} onChange={set('email')} autoCapitalize="none" autoComplete="email" required />}
         <input type="password" placeholder="Password (6+ characters)" value={f.password} onChange={set('password')} required />
         {err && <div className="error">{err}</div>}
         <button className="primary" disabled={busy}>{busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}</button>
@@ -75,14 +88,69 @@ function UserPicker({ onPick, exclude = [], placeholder }) {
   );
 }
 
-function Modal({ title, onClose, children }) {
+function Modal({ title, onClose, children, wide }) {
   return (
     <div className="scrim" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+      <div className={'modal' + (wide ? ' wide-modal' : '')} onClick={e => e.stopPropagation()}>
         <header><h3>{title}</h3><button className="icon" onClick={onClose} aria-label="Close">✕</button></header>
         {children}
       </div>
     </div>
+  );
+}
+
+function ConfirmLogout({ onConfirm, onClose }) {
+  return (
+    <Modal title="Log out?" onClose={onClose}>
+      <p className="hint confirm-text">Are you sure you want to log out of Huddle?</p>
+      <div className="actions">
+        <button className="ghost" onClick={onClose}>Cancel</button>
+        <button className="primary" onClick={onConfirm}>Log out</button>
+      </div>
+    </Modal>
+  );
+}
+
+function Settings({ me, onSaved, onClose }) {
+  const [p, setP] = useState({ name: me.name, email: me.email || '' });
+  const [pw, setPw] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [pMsg, setPMsg] = useState(null);
+  const [wMsg, setWMsg] = useState(null);
+  const [busy, setBusy] = useState('');
+  const saveProfile = async e => {
+    e.preventDefault(); setPMsg(null); setBusy('profile');
+    try { onSaved(await api('/me', 'PATCH', p)); setPMsg({ ok: true, text: 'Profile updated' }); }
+    catch (x) { setPMsg({ text: x.message }); }
+    setBusy('');
+  };
+  const savePassword = async e => {
+    e.preventDefault(); setWMsg(null);
+    if (pw.newPassword !== pw.confirm) return setWMsg({ text: 'New passwords do not match' });
+    setBusy('password');
+    try { await api('/me/password', 'PUT', { currentPassword: pw.currentPassword, newPassword: pw.newPassword }); setPw({ currentPassword: '', newPassword: '', confirm: '' }); setWMsg({ ok: true, text: 'Password changed' }); }
+    catch (x) { setWMsg({ text: x.message }); }
+    setBusy('');
+  };
+  const msg = m => m && <div className={m.ok ? 'ok' : 'error'}>{m.text}</div>;
+  return (
+    <Modal title="Account settings" onClose={onClose} wide>
+      <form onSubmit={saveProfile} className="settings-form">
+        <h4>Profile</h4>
+        <label>Full name<input value={p.name} onChange={e => setP({ ...p, name: e.target.value })} required /></label>
+        <label>Username<input value={'@' + me.username} disabled /></label>
+        <label>Email<input type="email" value={p.email} onChange={e => setP({ ...p, email: e.target.value })} autoCapitalize="none" autoComplete="email" required /></label>
+        {msg(pMsg)}
+        <button className="primary" disabled={busy === 'profile'}>{busy === 'profile' ? 'Saving…' : 'Save changes'}</button>
+      </form>
+      <form onSubmit={savePassword} className="settings-form">
+        <h4>Change password</h4>
+        <label>Current password<input type="password" value={pw.currentPassword} onChange={e => setPw({ ...pw, currentPassword: e.target.value })} autoComplete="current-password" required /></label>
+        <label>New password<input type="password" value={pw.newPassword} onChange={e => setPw({ ...pw, newPassword: e.target.value })} minLength={6} autoComplete="new-password" required /></label>
+        <label>Confirm new password<input type="password" value={pw.confirm} onChange={e => setPw({ ...pw, confirm: e.target.value })} minLength={6} autoComplete="new-password" required /></label>
+        {msg(wMsg)}
+        <button className="primary" disabled={busy === 'password'}>{busy === 'password' ? 'Updating…' : 'Update password'}</button>
+      </form>
+    </Modal>
   );
 }
 
@@ -208,13 +276,16 @@ export default function App() {
   const [data, setData] = useState({ groups: [], direct: [] });
   const [active, setActive] = useState(null);
   const [modal, setModal] = useState(null);
+  const [theme, setTheme] = useState(initialTheme);
+  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.theme = theme; }, [theme]);
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   useEffect(() => { localStorage.token ? api('/me').then(setMe).catch(() => {}).finally(() => setReady(true)) : setReady(true); }, []);
   const refresh = useCallback(() => api('/chats').then(setData).catch(() => {}), []);
   useEffect(() => { if (me) { refresh(); const t = setInterval(refresh, 5000); return () => clearInterval(t); } }, [me, refresh]);
 
   if (!ready) return null;
-  if (!me) return <AuthScreen onAuth={setMe} />;
+  if (!me) return <AuthScreen onAuth={setMe} theme={theme} onToggleTheme={toggleTheme} />;
 
   const liveChat = active && (active.type === 'group'
     ? { type: 'group', group: (g => g ? { ...g, id: g._id } : active.group)(data.groups.find(x => x._id === active.group.id)) }
@@ -230,7 +301,11 @@ export default function App() {
       <aside className="side">
         <header>
           <div><b>{me.name}</b><span>@{me.username}</span></div>
-          <button className="ghost" onClick={logout}>Log out</button>
+          <div className="side-actions">
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
+            <button className="ghost" onClick={() => setModal('settings')} aria-label="Account settings" title="Settings">⚙<span className="lbl"> Settings</span></button>
+            <button className="ghost" onClick={() => setModal('logout')}>Log out</button>
+          </div>
         </header>
         <nav className="tabs">
           <button className={tab === 'groups' ? 'on' : ''} onClick={() => setTab('groups')}>Groups</button>
@@ -254,6 +329,8 @@ export default function App() {
         {active ? <Chat key={active.type + (active.group?._id || active.user?.username)} chat={liveChat} me={me} onBack={() => setActive(null)} onLeave={() => { setActive(null); refresh(); }} onGroupUpdate={onGroupUpdate} />
           : <div className="empty"><h2>Pick a conversation</h2><p>Choose a group or a direct chat from the sidebar.</p></div>}
       </main>
+      {modal === 'settings' && <Settings me={me} onSaved={setMe} onClose={() => setModal(null)} />}
+      {modal === 'logout' && <ConfirmLogout onClose={() => setModal(null)} onConfirm={() => { setModal(null); logout(); }} />}
       {modal === 'groups' && <NewGroup onClose={() => setModal(null)} onDone={g => { setModal(null); refresh(); openGroup(g); }} />}
       {modal === 'direct' && <Modal title="Message someone" onClose={() => setModal(null)}><UserPicker placeholder="Search by username" onPick={openDm} /></Modal>}
     </div>
