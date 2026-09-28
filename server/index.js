@@ -39,7 +39,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '100kb' }));
 app.get('/health', (req, res) => res.json({ ok: true }));
-const wrap = fn => (req, res) => fn(req, res).catch(e => res.status(e.code === 11000 ? 409 : 400).json({ error: e.code === 11000 ? 'Username is already taken' : e.message }));
+const wrap = fn => (req, res) => fn(req, res).catch(e => {
+  if (e.code === 11000) {
+    const field = Object.keys(e.keyPattern || e.keyValue || {})[0];
+    console.error('Duplicate key error:', e.keyPattern || e.message);
+    return res.status(409).json({ error: field === 'username' ? 'Username is already taken' : `Could not save: duplicate value for "${field || 'unknown'}" (check for a stale database index)` });
+  }
+  res.status(400).json({ error: e.message });
+});
 const sign = u => jwt.sign({ id: u._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 const pub = u => ({ id: u._id, name: u.name, username: u.username, lastActive: u.lastActive });
 
@@ -58,6 +65,7 @@ app.post('/api/auth/signup', wrap(async (req, res) => {
   const { name, username, password } = req.body;
   if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(username || '')) throw new Error('Username: 3-20 letters, numbers or underscores');
+  if (await User.exists({ username: username.toLowerCase() })) throw new Error('Username is already taken');
   const user = await User.create({ name, username, password: await bcrypt.hash(password, 10) });
   res.json({ token: sign(user), user: pub(user) });
 }));

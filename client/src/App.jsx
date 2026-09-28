@@ -26,12 +26,15 @@ const activeText = d => {
 function AuthScreen({ onAuth }) {
   const [mode, setMode] = useState('login');
   const [f, setF] = useState({ name: '', username: '', password: '' });
+  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const set = k => e => setF({ ...f, [k]: e.target.value });
   const submit = async e => {
-    e.preventDefault(); setErr('');
+    e.preventDefault();
+    if (busy) return;
+    setErr(''); setBusy(true);
     try { const d = await api('/auth/' + mode, 'POST', f); localStorage.token = d.token; onAuth(d.user); }
-    catch (x) { setErr(x.message); }
+    catch (x) { setErr(x.message); setBusy(false); }
   };
   return (
     <div className="auth">
@@ -42,7 +45,8 @@ function AuthScreen({ onAuth }) {
         <input placeholder="Username" value={f.username} onChange={set('username')} autoCapitalize="none" required />
         <input type="password" placeholder="Password (6+ characters)" value={f.password} onChange={set('password')} required />
         {err && <div className="error">{err}</div>}
-        <button className="primary">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
+        <button className="primary" disabled={busy}>{busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}</button>
+        {busy && <p className="hint center">The server may take up to a minute to wake up. Please don’t click again.</p>}
         <button type="button" className="link" onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setErr(''); }}>
           {mode === 'login' ? 'New here? Create an account' : 'Have an account? Log in'}
         </button>
