@@ -282,7 +282,7 @@ The API only accepts browser requests from origins listed in `CLIENT_URL`.
 | "Set MONGO_URI and JWT_SECRET" in Render logs | Add the missing environment variable |
 | MongoDB timeout | Allow `0.0.0.0/0` in Atlas and check the password in the URI |
 | 404 after refreshing on Vercel | Ensure `client/vercel.json` exists (SPA rewrite) |
-| "Username is already taken" | Usernames are unique; choose another |
+| "Username is already taken" | The username exists (maybe from an earlier or double-clicked signup): try Log in, or pick another. If it appears for a brand-new name, see the API logs for a "Duplicate key" line: a stale index in the database (e.g. from another project) is the cause. Use a fresh database or drop the old index |
 
 ---
 
