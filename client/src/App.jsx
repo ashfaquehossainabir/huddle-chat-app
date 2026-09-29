@@ -299,7 +299,7 @@ function Chat({ chat, me, onBack, onLeave, onGroupUpdate }) {
     first.current = false;
   }, [msgs.length]);
 
-  useEffect(() => { const el = ta.current; if (!el) return; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 140) + 'px'; }, [text]);
+  useEffect(() => { const el = ta.current; if (!el) return; el.style.height = 'auto'; const b = el.offsetHeight - el.clientHeight; const h = el.scrollHeight + b; el.style.height = Math.min(h, 140) + 'px'; el.style.overflowY = h > 140 ? 'auto' : 'hidden'; }, [text]);
 
   const onScroll = () => {
     const el = box.current;
