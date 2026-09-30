@@ -1,0 +1,24 @@
+/* ═══════════ App shell ═══════════ */
+.app{height:100dvh;display:grid;grid-template-columns:var(--side) minmax(0,1fr);padding-top:env(safe-area-inset-top);background:var(--panel)}
+.side{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;min-width:0;min-height:0;padding:1rem 1rem calc(1rem + env(safe-area-inset-bottom));padding-left:calc(1rem + env(safe-area-inset-left));gap:.85rem}
+.side-top{display:flex;align-items:center;justify-content:space-between;min-width:0}
+.me-row{display:flex;align-items:center;gap:.7rem;padding:.55rem .6rem;background:var(--panel-2);border-radius:16px;min-width:0}
+.me-row .icon-btn{width:2.3rem;height:2.3rem}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--panel-2);border-radius:12px;padding:4px;gap:4px}
+.tabs button{padding:.5rem;border-radius:9px;font-weight:600;color:var(--mute);display:flex;align-items:center;justify-content:center;gap:.45rem;transition:background-color .15s,color .15s}
+.tabs button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tabs em{font-style:normal;font-size:.75rem;font-weight:700;min-width:1.35rem;padding:.05rem .4rem;border-radius:99px;background:var(--line);color:var(--mute)}
+.tabs .on em{background:var(--brand);color:var(--brand-ink)}
+.list{list-style:none;margin:0 -.35rem;padding:0 .35rem;overflow-y:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:2px}
+.list button{display:flex;gap:.8rem;align-items:center;width:100%;padding:.6rem .65rem;border-radius:14px;transition:background-color .12s}
+.list button:hover{background:var(--hover)}
+.list button.on{background:color-mix(in srgb,var(--brand) 14%,var(--panel))}
+.list button .avatar .dot{border-color:var(--panel)}
+.list .hint{padding:1.2rem .6rem}
+.new{width:100%}
+
+main{min-width:0;min-height:0;display:flex;background:var(--wall)}
+.empty{margin:auto;text-align:center;color:var(--mute);padding:1.5rem;max-width:34ch}
+.empty h2{color:var(--ink);font-size:1.6rem;font-weight:800;margin-top:.4rem}
+.empty p{margin:.5rem 0 0}
+.empty-art{display:grid;place-items:center;width:150px;height:150px;margin:0 auto 1rem;border-radius:50%;background:var(--panel)}

@@ -1,0 +1,22 @@
+/* ═══════════ Tokens ═══════════ */
+:root{
+  --bg:#dfe9e6;--panel:#fff;--panel-2:#f3f7f6;--ink:#0f2521;--mute:#587069;--line:#dbe5e2;
+  --brand:#0b7a6b;--brand-hover:#086556;--brand-ink:#fff;--sun:#f4b942;--coral:#e8735a;
+  --in:#fff;--in-ink:#0f2521;--out:#0b7a6b;--out-ink:#fff;--wall:#eaf1ef;--wall-dot:#d3e0dc;
+  --err:#b3261e;--live:#2fb36d;--hover:#eaf1ef;--scrim:rgba(8,22,19,.55);
+  --shadow:0 1px 2px rgba(15,37,33,.06),0 8px 24px rgba(15,37,33,.08);
+  --side:320px;--r:14px;
+  --display:'Bricolage Grotesque',Figtree,system-ui,sans-serif;
+  color-scheme:light;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#060e0c;--panel:#0f1c19;--panel-2:#132521;--ink:#e7f2ef;--mute:#8aa8a0;--line:#20362f;
+  --brand:#3fb5a3;--brand-hover:#5cc9b8;--brand-ink:#062019;--in:#182b26;--in-ink:#e7f2ef;--out:#17766a;--out-ink:#fff;
+  --wall:#0a1512;--wall-dot:#122320;--err:#ff8a80;--hover:#173029;--scrim:rgba(0,0,0,.65);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#060e0c;--panel:#0f1c19;--panel-2:#132521;--ink:#e7f2ef;--mute:#8aa8a0;--line:#20362f;
+  --brand:#3fb5a3;--brand-hover:#5cc9b8;--brand-ink:#062019;--in:#182b26;--in-ink:#e7f2ef;--out:#17766a;--out-ink:#fff;
+  --wall:#0a1512;--wall-dot:#122320;--err:#ff8a80;--hover:#173029;--scrim:rgba(0,0,0,.65);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}

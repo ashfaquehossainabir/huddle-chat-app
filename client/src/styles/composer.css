@@ -1,0 +1,9 @@
+.composer{display:flex;align-items:flex-end;gap:.6rem;padding:.7rem 1.1rem calc(.7rem + env(safe-area-inset-bottom));padding-right:calc(1.1rem + env(safe-area-inset-right));background:var(--panel);border-top:1px solid var(--line)}
+.composer .box{position:relative;flex:1;min-width:0}
+.composer textarea{display:block;width:100%;resize:none;border:1px solid var(--line);background:var(--panel-2);border-radius:22px;padding:.7rem 1.1rem;line-height:1.35;max-height:140px;overflow-y:hidden;scrollbar-width:none;font-size:1rem}
+.composer textarea::-webkit-scrollbar{display:none}
+.count{position:absolute;right:.9rem;bottom:.35rem;font-size:.7rem;color:var(--mute);background:var(--panel-2);padding:0 .25rem}
+.send{flex:none;width:2.9rem;height:2.9rem;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;transition:background-color .15s,transform .1s,opacity .15s}
+.send:hover:not(:disabled){background:var(--brand-hover)}.send:active:not(:disabled){transform:scale(.94)}
+.send:disabled{opacity:.4}
+.send .ic{translate:-1px 1px}

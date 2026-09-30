@@ -1,0 +1,30 @@
+/* ═══════════ Auth ═══════════ */
+.auth{min-height:100%;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);background:var(--panel)}
+.auth-theme{position:fixed;top:calc(.8rem + env(safe-area-inset-top));right:calc(.8rem + env(safe-area-inset-right));z-index:5;background:var(--panel);border:1px solid var(--line)}
+.auth-hero{position:relative;overflow:hidden;background:var(--brand);color:#fff;padding:clamp(2rem,5vw,4.5rem);display:flex;flex-direction:column;justify-content:center;gap:1.4rem}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .auth-hero{background:#0d3f38}}
+:root[data-theme="dark"] .auth-hero{background:#0d3f38}
+.auth-hero .brand-lockup{color:#fff}
+.auth-hero .mark circle:nth-child(1){fill:#fff}
+.auth-hero h2{font-size:clamp(2.4rem,4.4vw,4rem);line-height:1;font-weight:800;letter-spacing:-.035em}
+.auth-hero>p{margin:0;max-width:30ch;font-size:1.1rem;opacity:.9}
+.preview{margin-top:1.2rem;display:flex;flex-direction:column;gap:.7rem;max-width:400px}
+.pv-row{display:flex;align-items:flex-end;gap:.6rem}.pv-row.me{justify-content:flex-end}
+.pv-bubble{padding:.65rem .95rem;border-radius:18px;font-size:.95rem;max-width:80%}
+.pv-bubble.in{background:#fff;color:#0f2521;border-bottom-left-radius:6px}
+.pv-bubble.out{background:var(--sun);color:#3a2a00;border-bottom-right-radius:6px;font-weight:500}
+.typing-b{display:flex;gap:5px;padding:.85rem 1rem}
+.typing-b i,.dots i{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.35;animation:bob 1.2s infinite ease-in-out}
+.typing-b i{background:#587069}
+.typing-b i:nth-child(2),.dots i:nth-child(2){animation-delay:.15s}.typing-b i:nth-child(3),.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bob{0%,60%,100%{opacity:.3;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.auth-pane{display:grid;place-items:center;padding:clamp(1rem,4vw,3rem)}
+.auth-card{width:100%;max-width:400px;display:flex;flex-direction:column}
+.auth-card .brand-lockup{display:none;margin-bottom:1.6rem}
+.auth-card h1{font-size:2rem;font-weight:800;letter-spacing:-.03em}
+.auth-card .sub{color:var(--mute);margin:.4rem 0 1.6rem}
+.pw{position:relative;display:block}
+.pw input{padding-right:2.9rem}
+.pw-btn{position:absolute;right:.35rem;top:50%;translate:0 -46%;width:2.3rem;height:2.3rem;display:grid;place-items:center;color:var(--mute);border-radius:9px}
+.pw-btn:hover{color:var(--ink)}
+.auth-card .primary{margin-top:.3rem}

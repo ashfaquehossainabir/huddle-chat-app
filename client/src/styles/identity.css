@@ -1,0 +1,10 @@
+/* ═══════════ Identity ═══════════ */
+.brand-lockup{display:flex;align-items:center;gap:.7rem;font-family:var(--display);font-weight:800;font-size:2rem;letter-spacing:-.03em}
+.brand-lockup.compact{font-size:1.35rem;gap:.55rem}
+.boot{height:100%;display:grid;place-items:center}
+.avatar{position:relative;flex:none;width:var(--sz,44px);height:var(--sz,44px);border-radius:50%;background:var(--av);color:var(--avfg);display:grid;place-items:center;font-weight:700;font-family:var(--display);font-size:calc(var(--sz,44px)*.42)}
+.avatar.is-group{border-radius:32%}
+.avatar .dot{position:absolute;right:-1px;bottom:-1px;width:28%;height:28%;min-width:10px;min-height:10px;border-radius:50%;background:var(--live);border:2.5px solid var(--panel)}
+.who{display:flex;flex-direction:column;min-width:0;flex:1;text-align:left}
+.who b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who>span{color:var(--mute);font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

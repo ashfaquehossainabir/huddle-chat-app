@@ -110,8 +110,24 @@ huddle/
     ├── .env.example
     └── src/
         ├── main.jsx
-        ├── App.jsx           # Auth, sidebar, chat, modals
-        └── styles.css        # Responsive + light/dark styles
+        ├── App.jsx           # Page switch: Splash -> Auth -> Home
+        ├── pages/
+        │   ├── SplashPage/   # SplashPage (session check)
+        │   ├── AuthPage/     # AuthPage, AuthHero, PasswordField
+        │   └── HomePage/     # HomePage (sidebar + chat + modals), EmptyState
+        ├── api/              # client.js (fetch wrapper), session.js (token storage)
+        ├── utils/            # format.js, avatarColor.js, message.js
+        ├── hooks/            # useAuth, useTheme, useConversations, useMessages,
+        │                     # useTypingUsers, useAutoScroll, useAutoGrow
+        ├── components/       # shared pieces used by pages
+        │   ├── ui/           # Icon, Mark, BrandLockup, Avatar, Modal, ThemeToggle, UserPicker
+        │   ├── account/      # SettingsModal, ProfileForm, PasswordForm, ConfirmLogout
+        │   ├── sidebar/      # Sidebar, ProfileRow, ConversationTabs, ConversationList
+        │   ├── chat/         # Chat, ChatHeader, MessageList, MessageBubble, Composer, TypingIndicator
+        │   ├── groups/       # NewGroupModal, MembersModal
+        │   └── direct/       # NewMessageModal
+        └── styles/           # index.css imports tokens, base, forms, buttons, identity,
+                              # auth, layout, chat, composer, modals, responsive, motion
 ```
 
 ---

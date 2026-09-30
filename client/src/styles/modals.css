@@ -1,0 +1,30 @@
+/* ═══════════ Modals ═══════════ */
+.scrim{position:fixed;inset:0;background:var(--scrim);display:grid;place-items:center;padding:1rem;z-index:20;backdrop-filter:blur(3px);animation:fade .15s ease-out}
+.modal{position:relative;background:var(--panel);width:100%;max-width:440px;border-radius:22px;padding:1.3rem;max-height:90dvh;overflow:auto;box-shadow:var(--shadow);animation:rise .2s cubic-bezier(.2,.8,.2,1)}
+.modal.wide-modal{max-width:500px}
+.grab{display:none}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;margin-bottom:1rem}
+.modal-head h3{font-size:1.3rem;font-weight:800;overflow-wrap:anywhere}
+.modal .primary.block{margin-top:.6rem}
+.results{list-style:none;padding:0;margin:.5rem 0 .8rem}
+.results button{display:flex;align-items:center;gap:.75rem;width:100%;text-align:left;padding:.5rem .55rem;border-radius:12px}
+.results button:hover{background:var(--hover)}
+.member{display:flex;align-items:center;gap:.75rem;padding:.45rem .25rem}
+.member .who span{font-size:.82rem}
+.badge{font-style:normal;font-size:.68rem;font-weight:700;margin-left:.5rem;padding:.12rem .5rem;border-radius:99px;background:color-mix(in srgb,var(--sun) 35%,transparent);vertical-align:2px}
+.section-label{margin:.6rem 0 0;font-size:.82rem;font-weight:700;color:var(--mute)}
+.members{max-height:34dvh;overflow:auto}
+.danger-zone{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)}
+.danger-zone .wide{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;background:color-mix(in srgb,var(--brand) 14%,var(--panel));padding:.3rem .55rem .3rem .75rem;border-radius:99px;font-size:.85rem;font-weight:600}
+.chip:hover{background:color-mix(in srgb,var(--err) 14%,var(--panel))}
+.me-card{display:flex;align-items:center;gap:.9rem;padding:.8rem;background:var(--panel-2);border-radius:16px;margin-bottom:1.2rem}
+.settings-form{display:flex;flex-direction:column;margin-bottom:1.3rem;padding-bottom:1.3rem;border-bottom:1px solid var(--line)}
+.settings-form:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.settings-form h4{margin:0 0 .9rem;font-size:1.05rem;font-weight:700}
+.confirm-text{padding:0;margin:0 0 1.2rem;font-size:1rem}
+.actions{display:flex;justify-content:flex-end;gap:.6rem}
+.actions .ghost{padding:.7rem 1.2rem;border-radius:12px}
