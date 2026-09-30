@@ -99,9 +99,18 @@ huddle/
 ├── render.yaml               # Render Blueprint (API)
 ├── README.md
 ├── server/
-│   ├── index.js              # Express app: models, auth, routes, CORS
-│   ├── package.json
-│   └── .env.example
+│   ├── package.json          # start: node src/server.js
+│   ├── .env.example
+│   └── src/
+│       ├── server.js         # entry: load env, connect DB, listen
+│       ├── app.js            # Express app: CORS, JSON, /health, /api, error handler
+│       ├── config/           # env.js, db.js, cors.js, constants.js
+│       ├── models/           # User, Group, Message (Mongoose schemas)
+│       ├── routes/           # index.js mounts auth, me, users, chats, groups, messages, typing
+│       ├── controllers/      # auth, user, chat, group, message, typing (request handlers)
+│       ├── services/         # conversation.service.js (resolve group/DM), typing.service.js (in-memory)
+│       ├── middleware/       # auth.js (JWT), asyncHandler.js (error -> 400/409), errorHandler.js
+│       └── utils/            # token.js, serializers.js, validators.js, sameId.js
 └── client/
     ├── index.html
     ├── vite.config.js        # dev proxy: /api -> http://localhost:5000
